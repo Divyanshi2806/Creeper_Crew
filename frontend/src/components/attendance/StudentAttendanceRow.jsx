@@ -2,9 +2,9 @@
 // Shows student name + roll number + 3 status buttons
 
 import { Check, X, Clock } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'  // ← ADDED
 import { cn } from '@/lib/utils'
 
-// The three possible statuses with their styles
 const STATUS_CONFIG = {
   present: {
     label: 'Present',
@@ -27,11 +27,13 @@ const STATUS_CONFIG = {
 }
 
 export default function StudentAttendanceRow({ student, onStatusChange, isHighlighted }) {
+  const navigate = useNavigate()  // ← ADDED
+
   return (
     <div className={cn(
       'flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-200',
       isHighlighted
-        ? 'bg-[#F5F3FF] border-[#7C3AED] shadow-sm'   // highlighted after voice match
+        ? 'bg-[#F5F3FF] border-[#7C3AED] shadow-sm'
         : 'bg-white border-[#E5E7EB] hover:border-[#DDD6FE]'
     )}>
 
@@ -44,7 +46,13 @@ export default function StudentAttendanceRow({ student, onStatusChange, isHighli
 
       {/* ── Name + roll number ───────────────────── */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-[#1A1A2E] truncate">{student.name}</p>
+        {/* ↓ CHANGED: was a plain <p>, now clickable and navigates to profile */}
+        <p
+          className="text-sm font-semibold text-[#1A1A2E] truncate cursor-pointer hover:text-[#7C3AED] transition-colors"
+          onClick={() => navigate(`/students/${student.id}`)}
+        >
+          {student.name}
+        </p>
         <p className="text-xs text-[#6B7280]">{student.rollNumber}</p>
       </div>
 
@@ -65,7 +73,6 @@ export default function StudentAttendanceRow({ student, onStatusChange, isHighli
               )}
             >
               <Icon className="w-3 h-3" />
-              {/* Show label only on larger screens */}
               <span className="hidden sm:inline">{config.label}</span>
             </button>
           )

@@ -2,8 +2,11 @@
 // Used in the Summary tab of the attendance page
 
 import { AlertTriangle } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'  // ← ADDED
 
 export default function AttendanceSummaryTable({ summary }) {
+  const navigate = useNavigate()  // ← ADDED
+
   if (!summary || summary.length === 0) {
     return <p className="text-center text-[#6B7280] py-8 text-sm">No data available.</p>
   }
@@ -29,7 +32,7 @@ export default function AttendanceSummaryTable({ summary }) {
                 {student.rollNumber}
               </td>
 
-              {/* Name */}
+              {/* Name — now clickable, navigates to student profile */}
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-full bg-[#EDE9FE] flex items-center justify-center shrink-0">
@@ -37,7 +40,13 @@ export default function AttendanceSummaryTable({ summary }) {
                       {student.name.charAt(0)}
                     </span>
                   </div>
-                  <span className="font-medium text-[#1A1A2E]">{student.name}</span>
+                  {/* ↓ CHANGED: was a plain <span>, now clickable */}
+                  <span
+                    className="font-medium text-[#1A1A2E] cursor-pointer hover:text-[#7C3AED] transition-colors"
+                    onClick={() => navigate(`/students/${student.id}`)}
+                  >
+                    {student.name}
+                  </span>
                 </div>
               </td>
 
@@ -53,7 +62,6 @@ export default function AttendanceSummaryTable({ summary }) {
               {/* Percentage bar */}
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2">
-                  {/* Mini progress bar */}
                   <div className="w-20 h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
@@ -85,6 +93,7 @@ export default function AttendanceSummaryTable({ summary }) {
                   <span className="text-xs font-semibold text-emerald-600">✓ Good</span>
                 )}
               </td>
+
             </tr>
           ))}
         </tbody>
