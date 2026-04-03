@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&display=swap');
+/* Import Tailwind's base styles */
+@import "tailwindcss";
+
+/* Import Google Fonts — DM Sans for body, Fraunces for headings */
+
+/* CSS custom variables for our design system */
+:root {
+  --color-primary: #7C3AED;
+  /* EduEase purple */
+  --color-primary-light: #EDE9FE;
+  /* Light purple for backgrounds */
+  --color-primary-dark: #5B21B6;
+  /* Darker purple for hover states */
+  --color-success: #10B981;
+  /* Green for good attendance/grades */
+  --color-warning: #F59E0B;
+  /* Yellow for warnings */
+  --color-danger: #EF4444;
+  /* Red for alerts */
+  --color-surface: #FAFAFA;
+  /* Page background */
+  --color-card: #FFFFFF;
+  /* Card background */
+  --color-text: #1A1A2E;
+  /* Main text */
+  --color-muted: #6B7280;
+  /* Muted/secondary text */
+  --color-border: #E5E7EB;
+  /* Border color */
+
+  --font-sans: 'DM Sans', sans-serif;
+  --font-display: 'Fraunces', serif;
+}
+
+/* Apply base styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Utility: display font for headings */
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Scrollbar styling — thin and purple-tinted */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F3F4F6;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C4B5FD;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7C3AED;
+}

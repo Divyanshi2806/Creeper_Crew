@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // reads from .env file
+}
+
+model Teacher {
+  id         Int       @id @default(autoincrement())
+  name       String
+  email      String    @unique
+  password   String    
+  subject    String    
+  createdAt  DateTime  @default(now())
+
+  classes    Class[]
+  timetable  Timetable[]
+
+  @@map("teachers") 
+}
+
+model Admin {
+  id        Int    @id @default(autoincrement())
+  name      String
+  email     String @unique
+  password  String 
+
+  @@map("admins")
+}
+
+model Class {
+  id        Int    @id @default(autoincrement())
+  name      String 
+  grade     String 
+  section   String 
+  teacherId Int    
+
+  teacher    Teacher     @relation(fields: [teacherId], references: [id])
+  students   Student[]
+  attendance Attendance[]
+  timetable  Timetable[]
+
+  @@map("classes")
+}
+
+model Student {
+  id          Int    @id @default(autoincrement())
+  name        String
+  email       String @unique
+  parentEmail String // used to email progress reports
+  rollNumber  String // e.g. "10A-01"
+  classId     Int
+
+  class      Class        @relation(fields: [classId], references: [id])
+  attendance Attendance[]
+  grades     Grade[]
+  alerts     Alert[]
+
+  @@map("students")
+}
+
+model Attendance {
+  id        Int              @id @default(autoincrement())
+  studentId Int
+  classId   Int
+  date      DateTime         
+  status    AttendanceStatus 
+
+  student Student @relation(fields: [studentId], references: [id])
+  class   Class   @relation(fields: [classId], references: [id])
+
+  @@unique([studentId, classId, date])
+  @@map("attendance")
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  late
+}
+
+model Grade {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  subject   String   
+  topic     String   
+  marks     Float    
+  maxMarks  Float    
+  examDate  DateTime 
+
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@map("grades")
+}
+
+model Timetable {
+  id        Int    @id @default(autoincrement())
+  classId   Int
+  teacherId Int
+  subject   String 
+  day       String 
+  period    Int    
+  startTime String 
+  endTime   String 
+  class   Class   @relation(fields: [classId], references: [id])
+  teacher Teacher @relation(fields: [teacherId], references: [id])
+
+  @@map("timetable")
+}
+
+model Alert {
+  id        Int       @id @default(autoincrement())
+  studentId Int
+  type      AlertType 
+  message   String    
+  isRead    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@map("alerts")
+}
+
+enum AlertType {
+  attendance  
+  grade_drop  
+}
