@@ -29,7 +29,7 @@ export function useAttendance(classId, date) {
       // If student has no record yet, default to 'present'
       const withDefaults = res.data.students.map(s => ({
         ...s,
-        status: s.status || 'present'
+        status: s.status || 'absent'
       }))
       setStudents(withDefaults)
     } catch (err) {
@@ -48,8 +48,8 @@ export function useAttendance(classId, date) {
   }
 
   // Mark all students as present at once
-  const markAllPresent = () => {
-    setStudents(prev => prev.map(s => ({ ...s, status: 'present' })))
+  const markAllAbsent = () => {
+    setStudents(prev => prev.map(s => ({ ...s, status: 'absent' })))
     setSaved(false)
   }
 
@@ -78,6 +78,6 @@ export function useAttendance(classId, date) {
 
   return {
     students, loading, saving, error, saved,
-    updateStatus, markAllPresent, saveAttendance, refetch: fetchAttendance
+    updateStatus, markAllAbsent, saveAttendance, refetch: fetchAttendance
   }
 }

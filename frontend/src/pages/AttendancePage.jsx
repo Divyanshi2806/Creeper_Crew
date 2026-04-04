@@ -50,7 +50,7 @@ export default function AttendancePage() {
   // Attendance data hook
   const {
     students, loading, saving, error, saved,
-    updateStatus, markAllPresent, saveAttendance
+    updateStatus, markAllAbsent, saveAttendance
   } = useAttendance(selectedClassId, selectedDate)
 
   // Summary data hook
@@ -194,7 +194,7 @@ export default function AttendancePage() {
 
                     {/* Mark all present button */}
                     <button
-                      onClick={markAllPresent}
+                      onClick={markAllAbsent}
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-semibold hover:bg-emerald-100 transition-colors"
                     >
                       <CheckCheck className="w-3.5 h-3.5" />

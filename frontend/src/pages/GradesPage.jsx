@@ -25,7 +25,7 @@ export default function GradesPage() {
 
   const fetchGrades = async () => {
     const res = await axios.get(
-      "http://localhost:5000/api/grades?classId=4"
+      "http://localhost:5000/api/grades?classId=7"
     );
 
     setStudents(res.data.students);
@@ -40,7 +40,7 @@ export default function GradesPage() {
   
   const fetchHeatmap = async () => {
     const res = await axios.get(
-      "http://localhost:5000/api/grades/heatmap?classId=4"
+      "http://localhost:5000/api/grades/heatmap?classId=7"
     );
 
     setHeatmap(res.data.heatmap);
