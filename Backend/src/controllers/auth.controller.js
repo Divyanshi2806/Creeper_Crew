@@ -1,11 +1,9 @@
-// auth.controller.js — Handles login for teachers and admins
 
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
-// Helper: create a signed JWT token
 function generateToken(id, email, role) {
   return jwt.sign(
     { id, email, role },
@@ -14,7 +12,6 @@ function generateToken(id, email, role) {
   )
 }
 
-// POST /api/auth/login
 const login = async (req, res) => {
   const { email, password, role } = req.body
 
@@ -51,7 +48,7 @@ const login = async (req, res) => {
   })
 }
 
-// GET /api/auth/me
+
 const getMe = async (req, res) => {
   res.json({ user: req.user })
 }

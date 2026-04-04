@@ -75,7 +75,7 @@ const getHeatmap = async (req, res) => {
     topics: Object.entries(topics).map(([topic, data]) => ({
       topic,
       average: Math.round(data.total / data.count),
-      // Colour category: red < 40%, yellow 40–70%, green > 70%
+     
       category: data.total / data.count < 40 ? 'weak'
                : data.total / data.count < 70 ? 'average'
                : 'strong'
@@ -116,7 +116,7 @@ async function checkGradeAlerts(newGrades, io) {
     const previous = await prisma.grade.findMany({
       where: { studentId, subject: g.subject },
       orderBy: { examDate: 'desc' },
-      take: 2 // get last 2 to compare
+      take: 2 
     })
 
     if (previous.length >= 2) {

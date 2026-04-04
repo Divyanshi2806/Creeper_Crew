@@ -38,25 +38,22 @@ const updateTimetableSlot = async (req, res) => {
 
   res.json({ message: 'Timetable updated.', slot })
 }
-// ─── AI TIMETABLE GENERATOR ──────────────────────────────────
-// Uses Groq API to generate a smart timetable
-// Falls back to a built-in algorithm if Groq fails
+
 
 const Groq = require('groq-sdk')
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
-// POST /api/timetable/generate
-// Body: { classId } (optional — generates for all classes if omitted)
+
 const generateTimetable = async (req, res) => {
   const { classId } = req.body
 
-  // 1. Fetch class info + teacher + existing subjects
+ 
   const where = classId ? { id: parseInt(classId) } : {}
   const classes = await prisma.class.findMany({
     where,
     include: {
       teacher: true,
-      students: { take: 1 }, // just to confirm class exists
+      students: { take: 1 }, 
     }
   })
 
@@ -67,7 +64,7 @@ const generateTimetable = async (req, res) => {
   const results = []
 
   for (const cls of classes) {
-    // 2. Define subjects and time slots
+    
     const subjects = [
       'Mathematics', 'Science', 'English',
       'History', 'Geography'
@@ -76,9 +73,9 @@ const generateTimetable = async (req, res) => {
     const timeSlots = [
       { period: 1, start: '09:00', end: '09:45' },
       { period: 2, start: '09:45', end: '10:30' },
-      { period: 3, start: '10:45', end: '11:30' }, // break before
+      { period: 3, start: '10:45', end: '11:30' },
       { period: 4, start: '11:30', end: '12:15' },
-      { period: 5, start: '13:00', end: '13:45' }, // lunch before
+      { period: 5, start: '13:00', end: '13:45' },
       { period: 6, start: '13:45', end: '14:30' },
     ]
 
@@ -86,7 +83,7 @@ const generateTimetable = async (req, res) => {
 
     let timetableEntries = []
 
-    // 3. Try Groq AI first
+   
     try {
       const prompt = `Generate a weekly school timetable for ${cls.name}.
 Subjects available: ${subjects.join(', ')}.
@@ -108,7 +105,7 @@ Generate all 30 entries (6 periods × 5 days):`;
       const completion = await groq.chat.completions.create({
         model: 'llama-3.3-70b-versatile',
         max_tokens: 1500,
-        temperature: 0.3, // low temp = more predictable JSON
+        temperature: 0.3,
         messages: [
           {
             role: 'system',
@@ -120,7 +117,7 @@ Generate all 30 entries (6 periods × 5 days):`;
 
       const raw = completion.choices[0]?.message?.content || ''
 
-      // Strip any markdown code fences if present
+    
       const cleaned = raw
         .replace(/```json/gi, '')
         .replace(/```/g, '')
@@ -128,7 +125,7 @@ Generate all 30 entries (6 periods × 5 days):`;
 
       const parsed = JSON.parse(cleaned)
 
-      // Validate the response has the right shape
+     
       if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].day) {
         timetableEntries = parsed
         console.log(`✅ Groq generated timetable for ${cls.name}`)
@@ -137,13 +134,13 @@ Generate all 30 entries (6 periods × 5 days):`;
       }
 
     } catch (groqErr) {
-      // 4. Fallback: deterministic round-robin algorithm
+     
       console.log(`⚠️  Groq failed for ${cls.name}, using fallback algorithm:`, groqErr.message)
 
       timetableEntries = generateFallbackTimetable(days, timeSlots, subjects)
     }
 
-    // 5. Add classId and teacherId to every entry
+    
     const enriched = timetableEntries.map(entry => ({
       ...entry,
       classId:   cls.id,
@@ -157,22 +154,19 @@ Generate all 30 entries (6 periods × 5 days):`;
   res.json({ timetable: results, message: 'Timetable generated successfully.' })
 }
 
-// Fallback algorithm — pure round-robin, no AI needed
-// Guarantees: no subject repeats in same day, balanced distribution
 function generateFallbackTimetable(days, timeSlots, subjects) {
   const entries = []
 
-  // Priority subjects for mornings
   const morning  = ['Mathematics', 'Science', 'English']
   const afternoon = ['History', 'Geography', 'English']
 
   days.forEach((day, dayIndex) => {
-    // Rotate subjects based on day to avoid same pattern every day
+   
     const rotated = [...subjects.slice(dayIndex % subjects.length), ...subjects.slice(0, dayIndex % subjects.length)]
     const used    = new Set()
 
     timeSlots.forEach((slot, slotIndex) => {
-      // Pick a subject not yet used today
+      
       let subject = ''
       const pool  = slotIndex < 3 ? morning : afternoon
 
@@ -184,7 +178,6 @@ function generateFallbackTimetable(days, timeSlots, subjects) {
         }
       }
 
-      // Last resort — pick any unused
       if (!subject) {
         subject = subjects.find(s => !used.has(s)) || subjects[slotIndex % subjects.length]
         used.add(subject)
@@ -203,8 +196,6 @@ function generateFallbackTimetable(days, timeSlots, subjects) {
   return entries
 }
 
-// POST /api/timetable/save-generated
-// Body: { entries: [{ classId, teacherId, day, period, subject, startTime, endTime }] }
 const saveGeneratedTimetable = async (req, res) => {
   const { entries } = req.body
 
@@ -212,15 +203,13 @@ const saveGeneratedTimetable = async (req, res) => {
     return res.status(400).json({ error: 'entries array is required.' })
   }
 
-  // Get unique classIds from entries
+
   const classIds = [...new Set(entries.map(e => e.classId))]
 
-  // Delete old timetable for these classes
   await prisma.timetable.deleteMany({
     where: { classId: { in: classIds } }
   })
 
-  // Insert all new entries
   const created = await Promise.all(
     entries.map(e =>
       prisma.timetable.create({
